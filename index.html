@@ -134,7 +134,7 @@
         [`Yamaska`, `Il détient mon style musical d'origine Jamaïquaine`],
       ];
 
-      class MyApp extends HTMLDivElement {
+      class MyApp extends HTMLElement {
         constructor() {
           super();
 
@@ -228,7 +228,7 @@
     </header>
 
     <main>
-      <div is="my-app">
+      <my-app>
         <div id="card">
           <div id="card-content">
             <div id="card-content-front">
@@ -245,7 +245,7 @@
         <button id="next">
           Suivant
         </button>
-      </div>
+      </my-app>
     </main>
 
     <footer>
@@ -253,7 +253,7 @@
     </footer>
 
     <script>
-      window.customElements.define('my-app', MyApp, { extends: 'div' });
+      window.customElements.define('my-app', MyApp);
     </script>
   </body>
 </html>
