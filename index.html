@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+  <head>
+    <title>Devine mon Québec</title>
+    <meta charset="UTF-8">
+    <style>
+      :root {
+        --color-accent: #4F98E3;
+        --color-subdued: #B3D4F5;
+        --color-background: #F2F7FD;
+      }
+
+      body {
+        background-color: #F2F7FD;
+        text-align: center;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+      }
+
+      header h1 {
+        color: var(--color-accent);
+        margin: 50px 0;
+      }
+
+      footer {
+        color: var(--color-subdued);
+      }
+
+      #card {
+        position: relative;
+        max-width: 500px;
+        height: 300px;
+        display: block;
+        font-size: 2em;
+        perspective: 500px;
+        cursor: pointer;
+        margin: 30px auto;
+      }
+
+      #card #card-content {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        transition: transform 0.3s;
+        transform-style: preserve-3d;
+      }
+
+      #card.reveal #card-content {
+        transform: rotateY(180deg);
+        transition: transform 0.3s;
+      }
+
+      #card #card-content p {
+        position: absolute;
+        width: calc(100% - 60px);
+        top: 50%;
+        left: 30px;
+        transform: translateY(-50%);
+        padding: 0;
+        margin: 0;
+        text-align: center;
+      }
+
+      #card #card-content .icon {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 0.5em;
+      }
+
+
+      #card #card-content #card-content-front,
+      #card #card-content #card-content-back {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        text-align: center;
+        border-radius: 5px;
+        backface-visibility: hidden;
+      }
+
+      #card #card-content #card-content-front {
+        color: var(--color-background);
+        background-color: var(--color-accent);
+      }
+
+      #card #card-content #card-content-back {
+        color: var(--color-accent);
+        background-color: var(--color-subdued);
+        transform: rotateY(180deg);
+      }
+
+      button {
+        color: var(--color-background);
+        background-color: var(--color-accent);
+        display: block;
+        padding: 12px 24px;
+        border-width: 0;
+        border-radius: 5px;
+        margin: 0 auto 16px auto;
+        font-size: 1.2em;
+        cursor: pointer;
+      }
+
+      button:active {
+        background-color: var(--color-subdued);
+      }
+    </style>
+    <script>
+      /**
+       * @returns A new randomized array
+       */
+      Array.prototype.toShuffled = function() {
+        const array = [...this];
+
+        for (let i = array.length - 1; i > 0; i--) {
+          const rand = Math.floor(Math.random() * (i + 1));
+          [array[i], array[rand]] = [array[rand], array[i]];
+        }
+
+        return array;
+      }
+
+      window.dictionary = [
+        [`Beaupré`, `Joli champs`],
+        [`Belleterre`, `Jolie planète`],
+        [`Beloeil`, `Joli globe oculaire`],
+        [`Boisbriand`, `Forêt lumineuse`],
+        [`Bonaventure`, `Péripétie agréable`],
+        [`Châteauguay`, `Palais homosexuel`],
+        [`Contrecoeur`, `À l'envers d'un organe`],
+        [`Contrecoeur`, `Malgré soi`],
+        [`Jonquière`, `Anneau, pronom relatif, avant aujourd'hui`],
+        [`Yamachiche`, `Il détient une chiche qui m'appartient`],
+        [`Yamaska`, `Il détient mon style musical d'origine Jamaïquaine`],
+      ];
+
+      class MyApp extends HTMLDivElement {
+        constructor() {
+          super();
+
+          this.dictionary = window.dictionary; //.toShuffled();
+          this.currentIdx = 0;
+        }
+
+        connectedCallback() {
+          this.$card = this.querySelector('#card');
+          this.$next = this.querySelector('#next');
+
+          this.$card.addEventListener('click', () => {
+            this.flip();
+          });
+
+          this.$next.addEventListener('click', () => {
+            this.next();
+          });
+
+          window.addEventListener('keydown', (event) => {
+            // right arrow
+            if (event.keyCode === 39) {
+              this.next();
+            }
+
+            // left arrow
+            if (event.keyCode === 37) {
+              this.back();
+            }
+
+            // spacebar
+            if (event.keyCode === 32) {
+              this.flip();
+            }
+          });
+
+          // Start the game by initializing a first item
+          this.setItem(this.dictionary[this.currentIdx]);
+        }
+
+        flip(onFlipCompletionCallback) {
+          if (onFlipCompletionCallback) {
+            this.$card.addEventListener('transitionend', onFlipCompletionCallback, { once: true });
+          }
+
+          if (this.$card.classList.contains('reveal')) {
+            this.$card.classList.remove('reveal');
+          } else {
+            this.$card.classList.add('reveal');
+          }
+        }
+
+        setItem(item) {
+          const setItemCallback = (item) => {
+            this.$card.querySelector('#card-content-front p').textContent = item[1];
+            this.$card.querySelector('#card-content-back p').textContent = item[0];
+          }
+
+          if (this.$card.classList.contains('reveal')) {
+            this.flip(() => setItemCallback(item));
+          } else {
+            setItemCallback(item);
+          }
+        }
+
+        next() {
+          if (this.dictionary.length === this.currentIdx + 1) {
+            this.currentIdx = 0;
+          } else {
+            this.currentIdx++;
+          }
+
+          this.setItem(this.dictionary[this.currentIdx]);
+        }
+
+        back() {
+          if (this.currentIdx <= 0) {
+            this.currentIdx = 0;
+          } else {
+            this.currentIdx--;
+          }
+
+          this.setItem(this.dictionary[this.currentIdx]);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <h1>De quel lieu québécois s'agit-il?</h1>
+    </header>
+
+    <main>
+      <div is="my-app">
+        <div id="card">
+          <div id="card-content">
+            <div id="card-content-front">
+              <p>Chargement…</p>
+              <i class="icon">⤴</i>
+            </div>
+            <div id="card-content-back">
+              <p>Chargement…</p>
+              <i class="icon">⤴</i>
+            </div>
+          </div>
+        </div>
+
+        <button id="next">
+          Suivant
+        </button>
+      </div>
+    </main>
+
+    <footer>
+      <p><small>Fait avec ❤️ par Christian Blais</small></p>
+    </footer>
+
+    <script>
+      window.customElements.define('my-app', MyApp, { extends: 'div' });
+    </script>
+  </body>
+</html>
