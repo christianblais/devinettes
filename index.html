@@ -93,7 +93,7 @@
       button {
         color: var(--color-background);
         background-color: var(--color-accent);
-        display: block;
+        display: inline-block;
         padding: 12px 24px;
         border-width: 0;
         border-radius: 5px;
@@ -123,17 +123,19 @@
       }
 
       window.dictionary = [
+        [`Argenteuil`, `Dollar, Yeux`],
         [`Beaupré`, `Joli champs`],
         [`Beaconsfield`, `Champs anglophone de jambon`],
         [`Bécancour`, `Bouche d'oiseau, douze mois, marche vite`],
+        [`Bellechasse`, `Jolie poursuite`],
         [`Belleterre`, `Jolie planète`],
         [`Beloeil`, `Joli globe oculaire`],
         [`Boisbriand`, `Forêt lumineuse`],
         [`Bonaventure`, `Péripétie agréable`],
         [`Boucherville`, `Agglomération des débiteurs de viande`],
         [`Bromont`, `Dude, Colline`],
-        [`Cap-Chat`, `Le "boute" qui n'est pas un chien`],
-        [`Cap-Santé`, `Le "boute" en forme`],
+        [`Cap-Chat`, `Péninsule qui n'est pas un chien`],
+        [`Cap-Santé`, `Péninsule qui n'est pas malade`],
         [`Charlemagne`, `Roi des francs`],
         [`Châteauguay`, `Palais homosexuel`],
         [`Coaticook`, `Raton d'amérique centrale qui cuisine en anglais`],
@@ -141,6 +143,7 @@
         [`Contrecoeur`, `Malgré soi`],
         [`Deux-Montagnes`, `Moins que trois grosses collines`],
         [`Escoumins`, `Pluriel, tient la tête, au bout des bras`],
+        [`Etchemins`, `(Les) Liaison, sentiers`],
         [`Fermont`, `Montagne de métaux magnétique`],
         [`Forestville`, `Agglomération dans le bois anglophone`],
         [`Havre-Saint-Pierre`, `Port de l'apôtre`],
@@ -154,6 +157,7 @@
         [`Longueuil`, `Globe oculaire étiré`],
         [`Malartic`, `Douloureux pôle`],
         [`Métis-sur-Mer`, `Autochtone à l'océan`],
+        [`Mirabel`, `Au centre du pain, plus gros qu'une souris, joli`],
         [`Mont-Royal`, `Colline de sa majesté`],
         [`Mont-Tremblant`, `Colline qui frissonne`],
         [`Neuville`, `Municipalité récente`],
@@ -162,7 +166,10 @@
         [`Percé`, `Troué`],
         [`Pincourt`, `Petit conifère`],
         [`Pont-Rouge`, `Arche colorée`],
+        [`Portneuf`, `Marina récente`],
         [`Richelieu`, `Emplacement pas pauvre du tout`],
+        [`Rivière-du-Loup`, `Cours d'eau appartenant au canin`],
+        [`Sherbrooke`, `Dispendieux, ruisseau anglophone`],
         [`Trois-Rivière`, `Moins de quatre cours d'eau`],
         [`Yamachiche`, `Il détient une chiche qui m'appartient`],
         [`Yamaska`, `Il détient mon style musical d'origine Jamaïquaine`],
@@ -179,6 +186,7 @@
         connectedCallback() {
           this.$card = this.querySelector('#card');
           this.$next = this.querySelector('#next');
+          this.$back = this.querySelector('#back');
 
           this.$card.addEventListener('click', () => {
             this.flip();
@@ -186,6 +194,10 @@
 
           this.$next.addEventListener('click', () => {
             this.next();
+          });
+
+          this.$back.addEventListener('click', () => {
+            this.back();
           });
 
           window.addEventListener('keydown', (event) => {
@@ -201,6 +213,7 @@
 
             // spacebar
             if (event.keyCode === 32) {
+              event.preventDefault();
               this.flip();
             }
           });
@@ -276,9 +289,14 @@
           </div>
         </div>
 
-        <button id="next">
-          Suivant
-        </button>
+        <div id="button-group">
+          <button id="back">
+            Précédent
+          </button>
+          <button id="next">
+            Suivant
+          </button>
+        </div>
       </my-app>
     </main>
 
