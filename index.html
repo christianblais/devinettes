@@ -16,16 +16,18 @@
         font-family: Verdana, Arial, Helvetica, sans-serif;
       }
 
-      header h1 {
-        color: var(--color-accent);
-        margin: 40px 0;
+      header {
+        h1 {
+          color: var(--color-accent);
+          margin: 40px 0;
+        }
       }
 
       footer {
         color: var(--color-subdued);
       }
 
-      #card {
+      .card {
         position: relative;
         max-width: 500px;
         height: 200px;
@@ -34,60 +36,59 @@
         perspective: 500px;
         cursor: pointer;
         margin: 30px auto;
-      }
 
-      #card #card-content {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        box-shadow: 0 0 15px rgba(0,0,0,0.2);
-        transition: transform 0.5s;
-        transform-style: preserve-3d;
-      }
+        .card-content {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          box-shadow: 0 0 15px rgba(0,0,0,0.2);
+          transition: transform 0.5s;
+          transform-style: preserve-3d;
 
-      #card.reveal #card-content {
-        transform: rotateY(180deg);
-        transition: transform 0.5s;
-      }
+          p {
+            position: absolute;
+            width: calc(100% - 60px);
+            top: 50%;
+            left: 30px;
+            transform: translateY(-50%);
+            padding: 0;
+            margin: 0;
+            text-align: center;
+          }
 
-      #card #card-content p {
-        position: absolute;
-        width: calc(100% - 60px);
-        top: 50%;
-        left: 30px;
-        transform: translateY(-50%);
-        padding: 0;
-        margin: 0;
-        text-align: center;
-      }
+          .icon {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.5em;
+          }
 
-      #card #card-content .icon {
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        font-size: 0.5em;
-      }
+          .card-content-front,
+          .card-content-back {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            text-align: center;
+            border-radius: 5px;
+            backface-visibility: hidden;
+          }
 
+          .card-content-front {
+            color: var(--color-background);
+            background-color: var(--color-accent);
+          }
 
-      #card #card-content #card-content-front,
-      #card #card-content #card-content-back {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        text-align: center;
-        border-radius: 5px;
-        backface-visibility: hidden;
-      }
+          .card-content-back {
+            color: var(--color-accent);
+            background-color: var(--color-subdued);
+            transform: rotateY(180deg);
+          }
+        }
 
-      #card #card-content #card-content-front {
-        color: var(--color-background);
-        background-color: var(--color-accent);
-      }
-
-      #card #card-content #card-content-back {
-        color: var(--color-accent);
-        background-color: var(--color-subdued);
-        transform: rotateY(180deg);
+        &.reveal .card-content {
+          transform: rotateY(180deg);
+          transition: transform 0.5s;
+        }
       }
 
       button {
@@ -193,7 +194,7 @@
         }
 
         connectedCallback() {
-          this.$card = this.querySelector('#card');
+          this.$card = this.querySelector('.card');
           this.$next = this.querySelector('#next');
           this.$back = this.querySelector('#back');
 
@@ -228,7 +229,7 @@
           });
 
           // Start the game by initializing a first item
-          this.setItem(this.dictionary[this.currentIdx]);
+          this.setItem(this.currentIdx);
         }
 
         flip(onFlipCompletionCallback) {
@@ -243,11 +244,13 @@
           }
         }
 
-        setItem(item) {
+        setItem(itemIdx) {
           const setItemCallback = (item) => {
-            this.$card.querySelector('#card-content-front p').textContent = item[1];
-            this.$card.querySelector('#card-content-back p').textContent = item[0];
+            this.$card.querySelector('.card-content-front p').textContent = item[1];
+            this.$card.querySelector('.card-content-back p').textContent = item[0];
           }
+
+          const item = this.dictionary[itemIdx];
 
           if (this.$card.classList.contains('reveal')) {
             this.flip(() => setItemCallback(item));
@@ -257,23 +260,19 @@
         }
 
         next() {
-          if (this.dictionary.length === this.currentIdx + 1) {
-            this.currentIdx = 0;
-          } else {
+          if (this.dictionary.length > this.currentIdx + 1) {
             this.currentIdx++;
           }
 
-          this.setItem(this.dictionary[this.currentIdx]);
+          this.setItem(this.currentIdx);
         }
 
         back() {
-          if (this.currentIdx <= 0) {
-            this.currentIdx = 0;
-          } else {
+          if (this.currentIdx > 0) {
             this.currentIdx--;
           }
 
-          this.setItem(this.dictionary[this.currentIdx]);
+          this.setItem(this.currentIdx);
         }
       }
     </script>
@@ -285,20 +284,20 @@
 
     <main>
       <my-app>
-        <div id="card">
-          <div id="card-content">
-            <div id="card-content-front">
+        <div class="card">
+          <div class="card-content">
+            <div class="card-content-front">
               <p>Chargement…</p>
               <i class="icon">⤴</i>
             </div>
-            <div id="card-content-back">
+            <div class="card-content-back">
               <p>Chargement…</p>
               <i class="icon">⤴</i>
             </div>
           </div>
         </div>
 
-        <div id="button-group">
+        <div class="button-group">
           <button id="back">
             Précédent
           </button>
