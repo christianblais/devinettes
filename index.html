@@ -63,8 +63,8 @@
             font-size: 0.5em;
           }
 
-          .card-content-front,
-          .card-content-back {
+          .card-content-side-a,
+          .card-content-side-b {
             position: absolute;
             height: 100%;
             width: 100%;
@@ -73,12 +73,12 @@
             backface-visibility: hidden;
           }
 
-          .card-content-front {
+          .card-content-side-a {
             color: var(--color-background);
             background-color: var(--color-accent);
           }
 
-          .card-content-back {
+          .card-content-side-b {
             color: var(--color-accent);
             background-color: var(--color-subdued);
             transform: rotateY(180deg);
@@ -199,17 +199,9 @@
           this.$next = this.querySelector('#next');
           this.$back = this.querySelector('#back');
 
-          this.$card.addEventListener('click', () => {
-            this.flip();
-          });
-
-          this.$next.addEventListener('click', () => {
-            this.next();
-          });
-
-          this.$back.addEventListener('click', () => {
-            this.back();
-          });
+          this.$card.addEventListener('click', this.flip.bind(this));
+          this.$next.addEventListener('click', this.next.bind(this));
+          this.$back.addEventListener('click', this.back.bind(this));
 
           window.addEventListener('keydown', (event) => {
             // right arrow
@@ -230,7 +222,7 @@
           });
 
           // Start the game by initializing a first item
-          this.setItem(this.currentIdx);
+          this.setItem(this.dictionary[this.currentIdx]);
         }
 
         flip(onFlipCompletionCallback) {
@@ -245,13 +237,11 @@
           }
         }
 
-        setItem(itemIdx) {
+        setItem(item) {
           const setItemCallback = (item) => {
-            this.$card.querySelector('.card-content-front p').textContent = item[1];
-            this.$card.querySelector('.card-content-back p').textContent = item[0];
+            this.$card.querySelector('.card-content-side-a p').textContent = item[1];
+            this.$card.querySelector('.card-content-side-b p').textContent = item[0];
           }
-
-          const item = this.dictionary[itemIdx];
 
           if (this.$card.classList.contains('reveal')) {
             this.flip(() => setItemCallback(item));
@@ -265,7 +255,7 @@
             this.currentIdx++;
           }
 
-          this.setItem(this.currentIdx);
+          this.setItem(this.dictionary[this.currentIdx]);
         }
 
         back() {
@@ -273,7 +263,7 @@
             this.currentIdx--;
           }
 
-          this.setItem(this.currentIdx);
+          this.setItem(this.dictionary[this.currentIdx]);
         }
       }
     </script>
@@ -287,11 +277,11 @@
       <my-app>
         <div class="card">
           <div class="card-content">
-            <div class="card-content-front">
+            <div class="card-content-side-a">
               <p>Chargement…</p>
               <i class="icon">⤴</i>
             </div>
-            <div class="card-content-back">
+            <div class="card-content-side-b">
               <p>Chargement…</p>
               <i class="icon">⤴</i>
             </div>
