@@ -29,19 +29,14 @@
       }
 
       @keyframes slideout {
-        from {
-          transform: rotate(0deg);
-          translate: -50% -50%;
-        }
-
         to {
-          transform: rotate(-120deg);
+          transform: rotate(-90deg);
           translate: -150vw -50%;
           filter: grayscale(50%);
         }
       }
 
-      my-app {
+      riddle-app {
         background-color: #F2F7FD;
         text-align: center;
         font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -246,7 +241,7 @@
         [`Yamaska`, `Il détient mon style musical d'origine Jamaïquaine`],
       ];
 
-      class MyApp extends HTMLElement {
+      class RiddleApp extends HTMLElement {
         constructor() {
           super();
 
@@ -324,10 +319,14 @@
           }
         }
       }
+
+      addEventListener('DOMContentLoaded', () => {
+        customElements.define('riddle-app', RiddleApp);
+      });
     </script>
   </head>
   <body>
-    <my-app>
+    <riddle-app>
       <header>
         <h1>De quel lieu québécois s'agit-il?</h1>
       </header>
@@ -361,10 +360,6 @@
       <footer>
         <p><small>Fait avec ❤️ par Christian Blais</small></p>
       </footer>
-    </my-app>
-
-    <script>
-      window.customElements.define('my-app', MyApp);
-    </script>
+    </riddle-app>
   </body>
 </html>
