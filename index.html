@@ -10,104 +10,164 @@
         --color-background: #F2F7FD;
       }
 
-      body {
+      html, body {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+
+      @keyframes slidein {
+        from {
+          transform: rotate(-45deg);
+          translate: 150vw -50%;
+        }
+
+        to {
+          transform: rotate(0deg);
+          translate: -50% -50%;
+        }
+      }
+
+      @keyframes slideout {
+        from {
+          transform: rotate(0deg);
+          translate: -50% -50%;
+        }
+
+        to {
+          transform: rotate(-120deg);
+          translate: -150vw -50%;
+          filter: grayscale(50%);
+        }
+      }
+
+      my-app {
         background-color: #F2F7FD;
         text-align: center;
         font-family: Verdana, Arial, Helvetica, sans-serif;
-      }
+        min-height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr auto auto;
+        gap: 1em;
+        padding: 0;
+        margin: 0;
 
-      header {
-        h1 {
-          color: var(--color-accent);
-          margin: 40px 0;
+        header {
+          h1 {
+            color: var(--color-accent);
+            margin: 40px 0;
+          }
         }
-      }
 
-      footer {
-        color: var(--color-subdued);
-      }
+        footer {
+          color: var(--color-subdued);
+        }
 
-      .card {
-        position: relative;
-        max-width: 500px;
-        height: 200px;
-        display: block;
-        font-size: 2em;
-        perspective: 500px;
-        cursor: pointer;
-        margin: 30px auto;
-
-        .card-content {
-          position: absolute;
-          width: 100%;
+        #deck {
+          position: relative;
+          width: 100vw;
           height: 100%;
-          box-shadow: 0 0 15px rgba(0,0,0,0.2);
-          transition: transform 0.5s;
-          transform-style: preserve-3d;
+          overflow: hidden;
 
-          p {
+          .card {
             position: absolute;
-            width: calc(100% - 60px);
+            left: 50%;
             top: 50%;
-            left: 30px;
-            transform: translateY(-50%);
-            padding: 0;
-            margin: 0;
-            text-align: center;
-          }
-
-          .icon {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            font-size: 0.5em;
-          }
-
-          .card-content-side-a,
-          .card-content-side-b {
-            position: absolute;
+            transform: translateX(-50%) translateY(-50%);
+            width: calc(100% - 20px);
+            max-width: 500px;
             height: 100%;
-            width: 100%;
-            text-align: center;
-            border-radius: 5px;
-            backface-visibility: hidden;
-          }
+            max-height: 300px;
+            display: block;
+            font-size: 2em;
+            perspective: 500px;
+            cursor: pointer;
+            animation-duration: 0.5s;
+            animation-name: slidein;
 
-          .card-content-side-a {
+            &.removed {
+              animation-duration: 0.5s;
+              animation-name: slideout;
+            }
+
+            .card-content {
+              position: absolute;
+              width: 100%;
+              height: 100%;
+              box-shadow: 0 0 15px rgba(0,0,0,0.2);
+              transition: transform 0.5s;
+              transform-style: preserve-3d;
+
+              p {
+                position: absolute;
+                width: calc(100% - 60px);
+                top: 50%;
+                left: 30px;
+                transform: translateY(-50%);
+                padding: 0;
+                margin: 0;
+                text-align: center;
+              }
+
+              .icon {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                font-size: 0.5em;
+              }
+
+              .card-content-side-a,
+              .card-content-side-b {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                text-align: center;
+                border-radius: 5px;
+                backface-visibility: hidden;
+              }
+
+              .card-content-side-a {
+                color: var(--color-background);
+                background-color: var(--color-accent);
+              }
+
+              .card-content-side-b {
+                color: var(--color-accent);
+                background-color: var(--color-subdued);
+                transform: rotateY(180deg);
+              }
+            }
+
+            &.reveal {
+              .card-content {
+                transform: rotateY(180deg);
+                transition: transform 0.5s;
+              }
+            }
+          }
+        }
+
+        .button-group {
+          button {
             color: var(--color-background);
             background-color: var(--color-accent);
+            display: inline-block;
+            padding: 12px 24px;
+            border-width: 0;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            touch-action: manipulation;
+            bottom: 0;
           }
 
-          .card-content-side-b {
-            color: var(--color-accent);
+          button:active {
             background-color: var(--color-subdued);
-            transform: rotateY(180deg);
           }
         }
-
-        &.reveal .card-content {
-          transform: rotateY(180deg);
-          transition: transform 0.5s;
-        }
-      }
-
-      button {
-        color: var(--color-background);
-        background-color: var(--color-accent);
-        display: inline-block;
-        padding: 12px 24px;
-        border-width: 0;
-        border-radius: 5px;
-        margin: 0 auto 16px auto;
-        font-size: 1.2em;
-        cursor: pointer;
-        touch-action: manipulation;
-      }
-
-      button:active {
-        background-color: var(--color-subdued);
       }
     </style>
+
     <script>
       /**
        * @returns A new randomized array
@@ -195,13 +255,11 @@
         }
 
         connectedCallback() {
-          this.$card = this.querySelector('.card');
-          this.$next = this.querySelector('#next');
-          this.$back = this.querySelector('#back');
+          this.$deck = this.querySelector('#deck');
+          this.$tmpl = this.querySelector('#card');
 
-          this.$card.addEventListener('click', this.flip.bind(this));
-          this.$next.addEventListener('click', this.next.bind(this));
-          this.$back.addEventListener('click', this.back.bind(this));
+          this.querySelector('#next').addEventListener('click', this.next.bind(this));
+          this.querySelector('#back').addEventListener('click', this.back.bind(this));
 
           window.addEventListener('keydown', (event) => {
             // right arrow
@@ -238,70 +296,72 @@
         }
 
         setItem(item) {
-          const setItemCallback = (item) => {
-            this.$card.querySelector('.card-content-side-a p').textContent = item[1];
-            this.$card.querySelector('.card-content-side-b p').textContent = item[0];
+          if (this.$card) {
+            this.$card.addEventListener('animationend', (e) => e.target.remove(), { once: true });
+            this.$card.classList.add('removed');
           }
 
-          if (this.$card.classList.contains('reveal')) {
-            this.flip(() => setItemCallback(item));
-          } else {
-            setItemCallback(item);
-          }
+          const newCard = this.$tmpl.cloneNode(true).content;
+
+          newCard.querySelector('slot[name=card-content-side-a-text]').replaceWith(item[1]);
+          newCard.querySelector('slot[name=card-content-side-b-text]').replaceWith(item[0]);
+
+          this.$deck.appendChild(newCard);
+
+          this.$card = this.$deck.lastElementChild;
+          this.$card.addEventListener('click', this.flip.bind(this));
         }
 
         next() {
           if (this.dictionary.length > this.currentIdx + 1) {
-            this.currentIdx++;
+            this.setItem(this.dictionary[++this.currentIdx]);
           }
-
-          this.setItem(this.dictionary[this.currentIdx]);
         }
 
         back() {
           if (this.currentIdx > 0) {
-            this.currentIdx--;
+            this.setItem(this.dictionary[--this.currentIdx]);
           }
-
-          this.setItem(this.dictionary[this.currentIdx]);
         }
       }
     </script>
   </head>
   <body>
-    <header>
-      <h1>De quel lieu québécois s'agit-il?</h1>
-    </header>
+    <my-app>
+      <header>
+        <h1>De quel lieu québécois s'agit-il?</h1>
+      </header>
 
-    <main>
-      <my-app>
-        <div class="card">
-          <div class="card-content">
-            <div class="card-content-side-a">
-              <p>Chargement…</p>
-              <i class="icon">⤴</i>
-            </div>
-            <div class="card-content-side-b">
-              <p>Chargement…</p>
-              <i class="icon">⤴</i>
+      <div id="deck">
+        <template id="card">
+          <div class="card">
+            <div class="card-content">
+              <div class="card-content-side-a">
+                <p><slot name="card-content-side-a-text"></slot></p>
+                <i class="icon">⤴</i>
+              </div>
+              <div class="card-content-side-b">
+                <p><slot name="card-content-side-b-text"></slot></p>
+                <i class="icon">⤴</i>
+              </div>
             </div>
           </div>
-        </div>
+        </template>
+      </div>
 
-        <div class="button-group">
-          <button id="back">
-            Précédent
-          </button>
-          <button id="next">
-            Suivant
-          </button>
-        </div>
-      </my-app>
-    </main>
+      <div class="button-group">
+        <button id="back">
+          Précédent
+        </button>
+        <button id="next">
+          Suivant
+        </button>
+      </div>
 
-    <footer>
-      <p><small>Fait avec ❤️ par Christian Blais</small></p>
-    </footer>
+      <footer>
+        <p><small>Fait avec ❤️ par Christian Blais</small></p>
+      </footer>
+    </my-app>
 
     <script>
       window.customElements.define('my-app', MyApp);
