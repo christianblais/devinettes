@@ -64,7 +64,7 @@
           height: 100%;
           overflow: hidden;
 
-          card {
+          riddle-card {
             position: absolute;
             left: 50%;
             top: 50%;
@@ -244,7 +244,7 @@
         [`Richelieu`, `Emplacement pas pauvre du tout`],
         [`Rimouski`, `S'esclaffe, pas dur, sport de neige`],
         [`Rivière-du-Loup`, `Cours d'eau appartenant au canin`],
-        [`Rouyn`, `Pneu, quoi?`],
+        [`Rouyn`, `Pneu, quoi!?`],
         [`Saint-Hilarion`, `Rieur béni chargé positivement ou négativement`],
         [`Saint-Paul-de-l'Île-aux-Noix`, `Apôtre de l'atoll aux arachides`],
         [`Sept-Île`, `Est-ce qu'il connaît?`],
@@ -257,6 +257,33 @@
         [`Yamaska`, `Il détient mon style musical d'origine Jamaïquaine`],
       ];
 
+      class RiddleCard extends HTMLElement {
+        constructor() {
+          super();
+
+          this.$template = document.querySelector('#card-template').content;
+        }
+
+        connectedCallback() {
+          this.addEventListener('click', this.flip);
+
+          const content = this.$template.cloneNode(true);
+
+          content.querySelector('slot[name="side-a"]').replaceWith(this.getAttribute('side-a'));
+          content.querySelector('slot[name="side-b"]').replaceWith(this.getAttribute('side-b'));
+
+          this.append(content);
+        }
+
+        flip() {
+          if (this.classList.contains('reveal')) {
+            this.classList.remove('reveal');
+          } else {
+            this.classList.add('reveal');
+          }
+        }
+      }
+
       class RiddleApp extends HTMLElement {
         constructor() {
           super();
@@ -267,7 +294,6 @@
 
         connectedCallback() {
           this.$deck = this.querySelector('deck');
-          this.$tmpl = this.querySelector('#card');
 
           this.querySelector('#next').addEventListener('click', this.next.bind(this));
           this.querySelector('#back').addEventListener('click', this.back.bind(this));
@@ -286,7 +312,7 @@
             // spacebar
             if (event.keyCode === 32) {
               event.preventDefault();
-              this.flip();
+              this.$card?.flip();
             }
           });
 
@@ -309,33 +335,16 @@
           this.setItem(this.dictionary[this.currentIdx]);
         }
 
-        flip(onFlipCompletionCallback) {
-          if (onFlipCompletionCallback) {
-            this.$card.addEventListener('transitionend', onFlipCompletionCallback, { once: true });
-          }
-
-          if (this.$card.classList.contains('reveal')) {
-            this.$card.classList.remove('reveal');
-          } else {
-            this.$card.classList.add('reveal');
-          }
-        }
-
         setItem(item) {
           if (this.$card) {
             this.$card.addEventListener('animationend', (e) => e.target.remove(), { once: true });
             this.$card.classList.add('removed');
           }
 
-          const newCard = this.$tmpl.cloneNode(true).content;
-
-          newCard.querySelector('slot[name=card-content-side-a-text]').replaceWith(item[1]);
-          newCard.querySelector('slot[name=card-content-side-b-text]').replaceWith(item[0]);
-
-          this.$deck.appendChild(newCard);
-
-          this.$card = this.$deck.lastElementChild;
-          this.$card.addEventListener('click', this.flip.bind(this));
+          this.$card = document.createElement('riddle-card');
+          this.$card.setAttribute('side-a', item[1]);
+          this.$card.setAttribute('side-b', item[0]);
+          this.$deck.append(this.$card);
         }
 
         next() {
@@ -353,6 +362,7 @@
 
       addEventListener('DOMContentLoaded', () => {
         customElements.define('riddle-app', RiddleApp);
+        customElements.define('riddle-card', RiddleCard);
       });
     </script>
   </head>
@@ -363,19 +373,17 @@
       </header>
 
       <deck>
-        <template id="card">
-          <card>
-            <card-content>
-              <card-content-side-a>
-                <p><slot name="card-content-side-a-text"></slot></p>
-                <icon>⤴</icon>
-              </card-content-side-a>
-              <card-content-side-b>
-                <p><slot name="card-content-side-b-text"></slot></p>
-                <icon>⤴</icon>
-              </card-content-side-b>
-            </card-content>
-          </card>
+        <template id="card-template">
+          <card-content>
+            <card-content-side-a>
+              <p><slot name="side-a"></slot></p>
+              <icon>⤴</icon>
+            </card-content-side-a>
+            <card-content-side-b>
+              <p><slot name="side-b"></slot></p>
+              <icon>⤴</icon>
+            </card-content-side-b>
+          </card-content>
         </template>
       </deck>
 
