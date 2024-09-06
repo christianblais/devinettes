@@ -16,7 +16,7 @@
         margin: 0;
       }
 
-      @keyframes slidein {
+      @keyframes slidein-from-right {
         from {
           transform: rotate(-45deg);
           translate: 150vw -50%;
@@ -28,10 +28,30 @@
         }
       }
 
-      @keyframes slideout {
+      @keyframes slidein-from-left {
+        from {
+          transform: rotate(-45deg);
+          translate: -150vw -50%;
+        }
+
+        to {
+          transform: rotate(0deg);
+          translate: -50% -50%;
+        }
+      }
+
+      @keyframes slideout-to-left {
         to {
           transform: rotate(-90deg);
           translate: -150vw -50%;
+          filter: grayscale(50%);
+        }
+      }
+
+      @keyframes slideout-to-right {
+        to {
+          transform: rotate(90deg);
+          translate: 150vw -50%;
           filter: grayscale(50%);
         }
       }
@@ -78,11 +98,21 @@
             perspective: 500px;
             cursor: pointer;
             animation-duration: 0.5s;
-            animation-name: slidein;
 
-            &.removed {
-              animation-duration: 0.5s;
-              animation-name: slideout;
+            &.play-from-right {
+              animation-name: slidein-from-right;
+            }
+
+            &.play-from-left {
+              animation-name: slidein-from-left;
+            }
+
+            &.discard-to-left {
+              animation-name: slideout-to-left;
+            }
+
+            &.discard-to-right {
+              animation-name: slideout-to-right;
             }
 
             card-content {
@@ -135,7 +165,7 @@
               }
             }
 
-            &.reveal {
+            &.flipped {
               card-content {
                 transform: rotateY(180deg);
                 transition: transform 0.5s;
@@ -276,11 +306,16 @@
         }
 
         flip() {
-          if (this.classList.contains('reveal')) {
-            this.classList.remove('reveal');
+          if (this.classList.contains('flipped')) {
+            this.classList.remove('flipped');
           } else {
-            this.classList.add('reveal');
+            this.classList.add('flipped');
           }
+        }
+
+        discard(side) {
+          this.addEventListener('animationend', (e) => this.remove(), { once: true });
+          this.classList.add(`discard-${side}`);
         }
       }
 
@@ -312,7 +347,7 @@
             // spacebar
             if (event.keyCode === 32) {
               event.preventDefault();
-              this.$card?.flip();
+              this.$card.flip();
             }
           });
 
@@ -332,30 +367,30 @@
           });
 
           // Start the game by initializing a first item
-          this.setItem(this.dictionary[this.currentIdx]);
+          this.play('play-from-right');
         }
 
-        setItem(item) {
-          if (this.$card) {
-            this.$card.addEventListener('animationend', (e) => e.target.remove(), { once: true });
-            this.$card.classList.add('removed');
-          }
-
+        play(htmlClasses = []) {
           this.$card = document.createElement('riddle-card');
-          this.$card.setAttribute('side-a', item[1]);
-          this.$card.setAttribute('side-b', item[0]);
+          this.$card.setAttribute('side-a', this.dictionary[this.currentIdx][1]);
+          this.$card.setAttribute('side-b', this.dictionary[this.currentIdx][0]);
+          this.$card.classList.add(htmlClasses);
           this.$deck.append(this.$card);
         }
 
         next() {
           if (this.dictionary.length > this.currentIdx + 1) {
-            this.setItem(this.dictionary[++this.currentIdx]);
+            this.$card.discard('to-left');
+            this.currentIdx++;
+            this.play('play-from-right');
           }
         }
 
         back() {
           if (this.currentIdx > 0) {
-            this.setItem(this.dictionary[--this.currentIdx]);
+            this.$card.discard('to-right');
+            this.currentIdx--;
+            this.play('play-from-left');
           }
         }
       }
