@@ -48,14 +48,9 @@ export class App extends HTMLElement {
     window.addEventListener('touchstart', (touchStartEvent) => {
       window.addEventListener('touchend', (touchEndEvent) => {
         const diffX = touchEndEvent.changedTouches[0].screenX - touchStartEvent.changedTouches[0].screenX;
-        const diffY = touchEndEvent.changedTouches[0].screenY - touchStartEvent.changedTouches[0].screenY;
 
-        if (Math.abs(diffX) > Math.abs(diffY)) {
-          if (diffX < 0) {
-            this.next();
-          } else {
-            this.back();
-          }
+        if (Math.abs(diffX) > 50) {
+          diffX < 0 ? this.next() : this.back();
         }
       }, { once: true });
     });
