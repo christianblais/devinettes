@@ -2,16 +2,10 @@ import data from './data.mjs';
 import './util.mjs';
 
 export class Card extends HTMLElement {
-  constructor() {
-    super();
-
-    this.$template = document.querySelector('#card-template').content;
-  }
-
   connectedCallback() {
     this.addEventListener('click', this.flip);
 
-    const content = this.$template.cloneNode(true);
+    const content = document.querySelector('#card-template').content.cloneNode(true);
 
     content.querySelector('slot[name="side-a"]').replaceWith(this.getAttribute('side-a'));
     content.querySelector('slot[name="side-b"]').replaceWith(this.getAttribute('side-b'));
@@ -28,7 +22,7 @@ export class Card extends HTMLElement {
   }
 
   discard(side) {
-    this.addEventListener('animationend', (e) => this.remove(), { once: true });
+    this.addEventListener('animationend', e => this.remove(), { once: true });
     this.classList.add(`discard-${side}`);
   }
 }
@@ -48,18 +42,15 @@ export class App extends HTMLElement {
     this.querySelector('#back').addEventListener('click', this.back.bind(this));
 
     window.addEventListener('keydown', (event) => {
-      // right arrow
-      if (event.keyCode === 39) {
+      if (event.key === 'ArrowRight') {
         this.next();
       }
 
-      // left arrow
-      if (event.keyCode === 37) {
+      if (event.key === 'ArrowLeft') {
         this.back();
       }
 
-      // spacebar
-      if (event.keyCode === 32) {
+      if (event.key === ' ') {
         event.preventDefault();
         this.$card.flip();
       }
