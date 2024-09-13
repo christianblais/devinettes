@@ -14,11 +14,7 @@ export class Card extends HTMLElement {
   }
 
   flip() {
-    if (this.classList.contains('flipped')) {
-      this.classList.remove('flipped');
-    } else {
-      this.classList.add('flipped');
-    }
+    this.classList.toggle('flipped');
   }
 
   discard(side) {
