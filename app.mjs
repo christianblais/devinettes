@@ -28,13 +28,6 @@ export class Card extends HTMLElement {
 }
 
 export class App extends HTMLElement {
-  constructor() {
-    super();
-
-    this.dictionary = data.toShuffled();
-    this.currentIdx = 0;
-  }
-
   connectedCallback() {
     this.$deck = this.querySelector('deck');
 
@@ -71,31 +64,34 @@ export class App extends HTMLElement {
       }, { once: true });
     });
 
-    // Start the game by initializing a first item
-    this.play('play-from-right');
+    this.dictionary = data.toShuffled();
+    this.currentIdx = -1;
+
+    this.next();
   }
 
-  play(htmlClasses = []) {
-    this.$card = document.createElement('riddle-card');
-    this.$card.setAttribute('side-a', this.dictionary[this.currentIdx][1]);
-    this.$card.setAttribute('side-b', this.dictionary[this.currentIdx][0]);
-    this.$card.classList.add(htmlClasses);
-    this.$deck.append(this.$card);
+  createCardElement(item) {
+    const card = document.createElement('riddle-card');
+    card.setAttribute('side-a', item[1]);
+    card.setAttribute('side-b', item[0]);
+    return card;
   }
 
   next() {
     if (this.dictionary.length > this.currentIdx + 1) {
-      this.$card.discard('to-left');
-      this.currentIdx++;
-      this.play('play-from-right');
+      this.$card?.discard('to-left');
+      this.$card = this.createCardElement(this.dictionary[++this.currentIdx]);
+      this.$card.classList.add('play-from-right');
+      this.$deck.append(this.$card);
     }
   }
 
   back() {
     if (this.currentIdx > 0) {
-      this.$card.discard('to-right');
-      this.currentIdx--;
-      this.play('play-from-left');
+      this.$card?.discard('to-right');
+      this.$card = this.createCardElement(this.dictionary[--this.currentIdx]);
+      this.$card.classList.add('play-from-left');
+      this.$deck.append(this.$card);
     }
   }
 }
