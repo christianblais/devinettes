@@ -18,7 +18,7 @@ export class Card extends HTMLElement {
   }
 
   discard(side) {
-    this.addEventListener('animationend', e => this.remove(), { once: true });
+    this.addEventListener('animationend', this.remove, { once: true });
     this.classList.add(`discard-${side}`);
   }
 }
