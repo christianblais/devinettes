@@ -58,6 +58,25 @@ export class Card extends HTMLElement {
 }
 
 export class App extends HTMLElement {
+
+  /**
+   * The index of the current card.
+   * @type number
+   */
+  #currentCardIndex = -1;
+
+  /**
+   * The list of available cards
+   * @type [string, string][]
+   */
+  #cards = data.toShuffled();
+
+  /**
+   * The currently displayed card
+   * @type Card
+   */
+  #card;
+
   connectedCallback() {
     this.$deck = this.querySelector('deck');
 
@@ -75,7 +94,7 @@ export class App extends HTMLElement {
 
       if (event.key === ' ') {
         event.preventDefault();
-        this.$card.flip();
+        this.#card.flip();
       }
     });
 
@@ -89,12 +108,14 @@ export class App extends HTMLElement {
       }, { once: true });
     });
 
-    this.dictionary = data.toShuffled();
-    this.currentIdx = -1;
-
     this.#next();
   }
 
+  /**
+   * Creates a Card HTML Element
+   * @param {[string, string]} item
+   * @returns {Card}
+   */
   #createCardElement(item) {
     const card = document.createElement('riddle-card');
     card.setAttribute('template', 'card-template');
@@ -103,21 +124,27 @@ export class App extends HTMLElement {
     return card;
   }
 
+  /**
+   * Discard the current card and plays the next one
+   */
   #next() {
-    if (this.dictionary.length > this.currentIdx + 1) {
-      this.$card?.discard('to-left');
-      this.$card = this.#createCardElement(this.dictionary[++this.currentIdx]);
-      this.$card.classList.add('play-from-right');
-      this.$deck.append(this.$card);
+    if (this.#cards.length > this.#currentCardIndex + 1) {
+      this.#card?.discard('to-left');
+      this.#card = this.#createCardElement(this.#cards[++this.#currentCardIndex]);
+      this.#card.classList.add('play-from-right');
+      this.$deck.append(this.#card);
     }
   }
 
+  /**
+   * Discard the current card and plays the previous one
+   */
   #back() {
-    if (this.currentIdx > 0) {
-      this.$card?.discard('to-right');
-      this.$card = this.#createCardElement(this.dictionary[--this.currentIdx]);
-      this.$card.classList.add('play-from-left');
-      this.$deck.append(this.$card);
+    if (this.#currentCardIndex > 0) {
+      this.#card?.discard('to-right');
+      this.#card = this.#createCardElement(this.#cards[--this.#currentCardIndex]);
+      this.#card.classList.add('play-from-left');
+      this.$deck.append(this.#card);
     }
   }
 }
